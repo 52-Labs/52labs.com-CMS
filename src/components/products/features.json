@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_products_features",
+  "info": {
+    "displayName": "features"
+  },
+  "options": {},
+  "attributes": {
+    "feature": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

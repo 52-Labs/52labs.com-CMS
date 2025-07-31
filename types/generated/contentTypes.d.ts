@@ -422,12 +422,13 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.String & Schema.Attribute.Required;
-    features: Schema.Attribute.JSON;
+    description: Schema.Attribute.Text & Schema.Attribute.Required;
     internalOptions: Schema.Attribute.Component<
       'products.internal-options',
       false
-    >;
+    > &
+      Schema.Attribute.Required;
+    isCoreProduct: Schema.Attribute.Boolean;
     learnMoreUrl: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -437,16 +438,18 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     name: Schema.Attribute.String & Schema.Attribute.Required;
-    pageSettings: Schema.Attribute.DynamicZone<
-      ['products.page-settings', 'shared.seo']
-    >;
     product_category: Schema.Attribute.Relation<
       'manyToOne',
       'api::product-category.product-category'
     >;
+    productFeatures: Schema.Attribute.Component<'products.features', true> &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 4;
+        },
+        number
+      >;
     publishedAt: Schema.Attribute.DateTime;
-    shortDescription: Schema.Attribute.String &
-      Schema.Attribute.DefaultTo<'shortDescription'>;
     slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

@@ -1,5 +1,15 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface ProductsFeatures extends Struct.ComponentSchema {
+  collectionName: 'components_products_features';
+  info: {
+    displayName: 'features';
+  };
+  attributes: {
+    feature: Schema.Attribute.String;
+  };
+}
+
 export interface ProductsInternalOptions extends Struct.ComponentSchema {
   collectionName: 'components_products_internal_options';
   info: {
@@ -95,6 +105,7 @@ export interface SharedSlider extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'products.features': ProductsFeatures;
       'products.internal-options': ProductsInternalOptions;
       'products.page-settings': ProductsPageSettings;
       'shared.media': SharedMedia;
