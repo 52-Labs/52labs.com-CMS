@@ -1,5 +1,35 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface ProductsInternalOptions extends Struct.ComponentSchema {
+  collectionName: 'components_products_internal_options';
+  info: {
+    displayName: 'internalOptions';
+  };
+  attributes: {
+    downloadUrl: Schema.Attribute.String;
+    installationInstructions: Schema.Attribute.Blocks;
+    media: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    usageInstructions: Schema.Attribute.Blocks;
+  };
+}
+
+export interface ProductsPageSettings extends Struct.ComponentSchema {
+  collectionName: 'components_products_page_settings';
+  info: {
+    displayName: 'pageSettings';
+    icon: 'cog';
+  };
+  attributes: {
+    isActive: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<true>;
+    order: Schema.Attribute.Integer;
+  };
+}
+
 export interface SharedMedia extends Struct.ComponentSchema {
   collectionName: 'components_shared_media';
   info: {
@@ -65,6 +95,8 @@ export interface SharedSlider extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'products.internal-options': ProductsInternalOptions;
+      'products.page-settings': ProductsPageSettings;
       'shared.media': SharedMedia;
       'shared.quote': SharedQuote;
       'shared.rich-text': SharedRichText;

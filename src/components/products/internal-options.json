@@ -1,0 +1,29 @@
+{
+  "collectionName": "components_products_internal_options",
+  "info": {
+    "displayName": "internalOptions"
+  },
+  "options": {},
+  "attributes": {
+    "installationInstructions": {
+      "type": "blocks"
+    },
+    "usageInstructions": {
+      "type": "blocks"
+    },
+    "downloadUrl": {
+      "type": "string"
+    },
+    "media": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}
