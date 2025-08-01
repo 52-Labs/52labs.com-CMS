@@ -18,6 +18,8 @@ export interface ProductsInternalOptions extends Struct.ComponentSchema {
   attributes: {
     downloadUrl: Schema.Attribute.String;
     installationInstructions: Schema.Attribute.Blocks;
+    internalProductOnly: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     media: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true

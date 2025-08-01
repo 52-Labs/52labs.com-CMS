@@ -438,6 +438,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    order: Schema.Attribute.Integer;
     product_category: Schema.Attribute.Relation<
       'manyToOne',
       'api::product-category.product-category'
@@ -468,6 +469,10 @@ export interface ApiSiteSettingSiteSetting extends Struct.SingleTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    carousel: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

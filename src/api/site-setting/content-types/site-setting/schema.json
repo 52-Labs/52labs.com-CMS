@@ -44,6 +44,16 @@
       "type": "component",
       "component": "shared.seo",
       "repeatable": false
+    },
+    "carousel": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
     }
   }
 }
