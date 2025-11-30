@@ -86,7 +86,12 @@ $has_tabs = $tab_count > 1;
                             </div>
                             <?php if ($download_url) : ?>
                                 <a href="<?php echo esc_url($download_url); ?>" class="btn btn-primary btn-download" target="_blank" rel="noopener">
-                                    Get It »
+                                    <svg class="download-icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                    Get It
                                 </a>
                             <?php endif; ?>
                         </div>
@@ -154,12 +159,12 @@ $has_tabs = $tab_count > 1;
                         <button class="tab-btn <?php echo $first_tab ? 'active' : ''; ?>" data-tab="features">Key Features</button>
                         <?php $first_tab = false; ?>
                     <?php endif; ?>
-                    <?php if ($has_how_to_use) : ?>
-                        <button class="tab-btn <?php echo $first_tab ? 'active' : ''; ?>" data-tab="how-to-use">How to Use</button>
-                        <?php $first_tab = false; ?>
-                    <?php endif; ?>
                     <?php if ($has_download_instructions) : ?>
                         <button class="tab-btn <?php echo $first_tab ? 'active' : ''; ?>" data-tab="download">Download Instructions</button>
+                        <?php $first_tab = false; ?>
+                    <?php endif; ?>
+                    <?php if ($has_how_to_use) : ?>
+                        <button class="tab-btn <?php echo $first_tab ? 'active' : ''; ?>" data-tab="how-to-use">How to Use</button>
                         <?php $first_tab = false; ?>
                     <?php endif; ?>
                     <?php if ($has_faqs) : ?>
@@ -191,16 +196,6 @@ $has_tabs = $tab_count > 1;
                     <?php $first_panel = false; ?>
                     <?php endif; ?>
                     
-                    <?php if ($has_how_to_use) : ?>
-                    <!-- How to Use Tab -->
-                    <div class="tab-panel <?php echo $first_panel ? 'active' : ''; ?>" id="tab-how-to-use">
-                        <div class="wysiwyg-content">
-                            <?php echo wp_kses_post($usage_instructions); ?>
-                        </div>
-                    </div>
-                    <?php $first_panel = false; ?>
-                    <?php endif; ?>
-                    
                     <?php if ($has_download_instructions) : ?>
                     <!-- Download Instructions Tab -->
                     <div class="tab-panel <?php echo $first_panel ? 'active' : ''; ?>" id="tab-download">
@@ -223,6 +218,16 @@ $has_tabs = $tab_count > 1;
                         <?php endif; ?>
                         <div class="wysiwyg-content">
                             <?php echo wp_kses_post($installation_instructions); ?>
+                        </div>
+                    </div>
+                    <?php $first_panel = false; ?>
+                    <?php endif; ?>
+                    
+                    <?php if ($has_how_to_use) : ?>
+                    <!-- How to Use Tab -->
+                    <div class="tab-panel <?php echo $first_panel ? 'active' : ''; ?>" id="tab-how-to-use">
+                        <div class="wysiwyg-content">
+                            <?php echo wp_kses_post($usage_instructions); ?>
                         </div>
                     </div>
                     <?php $first_panel = false; ?>

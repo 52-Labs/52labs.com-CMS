@@ -18,6 +18,7 @@ $library_url = !empty($library_page) ? get_permalink($library_page[0]->ID) : hom
 // Determine current page for active states
 $current_url = home_url(add_query_arg([], $GLOBALS['wp']->request));
 $is_library = is_page_template('template-library.php') || is_singular('product');
+$is_blog = is_singular('post') || is_archive() || is_home() || is_search();
 ?>
 
 <header class="library-header">
@@ -62,6 +63,12 @@ $is_library = is_page_template('template-library.php') || is_singular('product')
                     
                     // Check if this is the Library link and we're on a product page
                     if (is_singular('product') && stripos($item->title, 'library') !== false) {
+                        $classes[] = 'active';
+                    }
+                    
+                    // Check if this is the Blog link and we're on a blog-related page
+                    if ((is_singular('post') || is_archive() || is_home() || is_search()) && 
+                        (stripos($item->title, 'blog') !== false || stripos($item->title, 'news') !== false || stripos($item->title, 'articles') !== false)) {
                         $classes[] = 'active';
                     }
                     

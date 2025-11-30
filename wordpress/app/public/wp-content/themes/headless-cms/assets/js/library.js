@@ -48,26 +48,130 @@
         const categoryCheckboxes = document.querySelectorAll('input[name="category"]');
         const tagCheckboxes = document.querySelectorAll('input[name="tag"]');
         const productsGrid = document.getElementById('products-grid');
+        const postsGrid = document.getElementById('posts-grid');
         
-        if (!productsGrid) return;
-        
-        // Category filters
-        if (categoryCheckboxes.length) {
-            categoryCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    filterProducts();
+        // Products grid filtering
+        if (productsGrid) {
+            // Category filters (checkboxes)
+            if (categoryCheckboxes.length) {
+                categoryCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        filterProducts();
+                    });
                 });
-            });
+            }
+            
+            // Tag filters
+            if (tagCheckboxes.length) {
+                tagCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        filterProducts();
+                    });
+                });
+            }
         }
         
-        // Tag filters
-        if (tagCheckboxes.length) {
-            tagCheckboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    filterProducts();
+        // Posts grid filtering (blog archive)
+        if (postsGrid) {
+            // Category filters (radio buttons for blog)
+            if (categoryCheckboxes.length) {
+                categoryCheckboxes.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        filterPosts();
+                    });
                 });
-            });
+            }
         }
+    }
+
+    // ==========================================
+    // Blog Posts Filtering
+    // ==========================================
+    
+    function filterPosts() {
+        const postsGrid = document.getElementById('posts-grid');
+        if (!postsGrid) return;
+        
+        // Get selected category (radio button)
+        const selectedCategory = document.querySelector('input[name="category"]:checked')?.value || '';
+        
+        // Get search query
+        const searchInput = document.getElementById('header-search-input');
+        const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        
+        // Filter posts
+        const postCards = postsGrid.querySelectorAll('.post-card');
+        let visibleCount = 0;
+        
+        postCards.forEach(card => {
+            const cardCategory = card.dataset.category || '';
+            const cardTitle = card.querySelector('.post-card-title')?.textContent.toLowerCase() || '';
+            const cardExcerpt = card.querySelector('.post-card-excerpt')?.textContent.toLowerCase() || '';
+            
+            // Check category match
+            const categoryMatch = selectedCategory === '' || cardCategory === selectedCategory;
+            
+            // Check search match
+            const searchMatch = searchQuery === '' || 
+                               cardTitle.includes(searchQuery) || 
+                               cardExcerpt.includes(searchQuery);
+            
+            // Show or hide card
+            const isVisible = categoryMatch && searchMatch;
+            card.classList.toggle('hidden', !isVisible);
+            
+            if (isVisible) visibleCount++;
+        });
+        
+        // Show "no posts" message if needed
+        updateNoPostsMessage(postsGrid, visibleCount);
+        
+        // Update URL state
+        updateBlogUrlState();
+    }
+    
+    function updateNoPostsMessage(grid, visibleCount) {
+        let noPostsEl = grid.querySelector('.no-posts');
+        
+        if (visibleCount === 0) {
+            if (!noPostsEl) {
+                noPostsEl = document.createElement('div');
+                noPostsEl.className = 'no-posts';
+                noPostsEl.innerHTML = `
+                    <div class="no-posts-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                    <h3>No posts found</h3>
+                    <p>We couldn't find any articles matching your criteria.</p>
+                `;
+                grid.appendChild(noPostsEl);
+            }
+            noPostsEl.style.display = 'block';
+        } else if (noPostsEl) {
+            noPostsEl.style.display = 'none';
+        }
+    }
+    
+    function updateBlogUrlState() {
+        const selectedCategory = document.querySelector('input[name="category"]:checked')?.value || '';
+        
+        const searchInput = document.getElementById('header-search-input');
+        const searchQuery = searchInput ? searchInput.value.trim() : '';
+        
+        const params = new URLSearchParams();
+        if (selectedCategory) params.append('category', selectedCategory);
+        if (searchQuery) params.append('search', searchQuery);
+        
+        const newUrl = params.toString() 
+            ? `${window.location.pathname}?${params.toString()}`
+            : window.location.pathname;
+        
+        window.history.replaceState({}, '', newUrl);
     }
 
     function filterProducts() {
@@ -149,7 +253,15 @@
         const searchInput = document.getElementById('header-search-input');
         if (!searchInput) return;
         
-        const debouncedFilter = debounce(filterProducts, 300);
+        const productsGrid = document.getElementById('products-grid');
+        const postsGrid = document.getElementById('posts-grid');
+        
+        // Use appropriate filter function based on page type
+        const filterFn = productsGrid ? filterProducts : (postsGrid ? filterPosts : null);
+        
+        if (!filterFn) return;
+        
+        const debouncedFilter = debounce(filterFn, 300);
         
         searchInput.addEventListener('input', function() {
             debouncedFilter();
@@ -159,7 +271,7 @@
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                filterProducts();
+                filterFn();
             }
         });
     }
@@ -380,35 +492,55 @@
     function initUrlState() {
         // Update URL when filters change (for shareable filtered states)
         const params = new URLSearchParams(window.location.search);
+        const productsGrid = document.getElementById('products-grid');
+        const postsGrid = document.getElementById('posts-grid');
         
-        // Apply categories from URL
-        const urlCategories = params.getAll('categories');
-        if (urlCategories.length > 0) {
-            urlCategories.forEach(cat => {
-                const checkbox = document.querySelector(`input[name="category"][value="${cat}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        
-        // Apply tags from URL
-        const urlTags = params.getAll('tags');
-        if (urlTags.length > 0) {
-            urlTags.forEach(tag => {
-                const checkbox = document.querySelector(`input[name="tag"][value="${tag}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        
-        // Apply search from URL
+        // Apply search from URL (common for both)
         const urlSearch = params.get('search');
         if (urlSearch) {
             const searchInput = document.getElementById('header-search-input');
             if (searchInput) searchInput.value = urlSearch;
         }
         
-        // Initial filter application
-        if (urlCategories.length > 0 || urlTags.length > 0 || urlSearch) {
-            filterProducts();
+        // Products grid URL state
+        if (productsGrid) {
+            // Apply categories from URL (multiple categories for products)
+            const urlCategories = params.getAll('categories');
+            if (urlCategories.length > 0) {
+                urlCategories.forEach(cat => {
+                    const checkbox = document.querySelector(`input[name="category"][value="${cat}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Apply tags from URL
+            const urlTags = params.getAll('tags');
+            if (urlTags.length > 0) {
+                urlTags.forEach(tag => {
+                    const checkbox = document.querySelector(`input[name="tag"][value="${tag}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            // Initial filter application
+            if (urlCategories.length > 0 || urlTags.length > 0 || urlSearch) {
+                filterProducts();
+            }
+        }
+        
+        // Posts grid URL state
+        if (postsGrid) {
+            // Apply category from URL (single category for blog)
+            const urlCategory = params.get('category');
+            if (urlCategory) {
+                const radio = document.querySelector(`input[name="category"][value="${urlCategory}"]`);
+                if (radio) radio.checked = true;
+            }
+            
+            // Initial filter application
+            if (urlCategory || urlSearch) {
+                filterPosts();
+            }
         }
     }
     

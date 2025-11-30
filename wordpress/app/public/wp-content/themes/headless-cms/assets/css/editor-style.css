@@ -1,0 +1,289 @@
+/**
+ * Gutenberg Editor Styles
+ * Matches the front-end styling in the block editor
+ */
+
+/* Import DM Sans font */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+/* CSS Variables */
+:root {
+    --color-primary: #3B82F6;
+    --color-primary-hover: #2563EB;
+    --color-primary-light: #EFF6FF;
+    --color-text: #1F2937;
+    --color-text-secondary: #6B7280;
+    --color-text-muted: #9CA3AF;
+    --color-border: #E5E7EB;
+    --color-border-light: #F3F4F6;
+    --color-bg: #FFFFFF;
+    --color-bg-subtle: #F9FAFB;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition-fast: 150ms ease;
+}
+
+/* Editor Base Typography */
+.editor-styles-wrapper {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Title */
+.editor-post-title__input {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 48px !important;
+    font-weight: 800 !important;
+    color: var(--color-text) !important;
+    letter-spacing: -0.03em;
+}
+
+/* Paragraphs */
+.editor-styles-wrapper p {
+    font-size: 17px;
+    line-height: 1.8;
+    margin-bottom: 1.5em;
+}
+
+/* Headings */
+.editor-styles-wrapper h1,
+.editor-styles-wrapper h2,
+.editor-styles-wrapper h3,
+.editor-styles-wrapper h4,
+.editor-styles-wrapper h5,
+.editor-styles-wrapper h6 {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--color-text);
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+}
+
+.editor-styles-wrapper h1 { font-size: 42px; font-weight: 800; }
+.editor-styles-wrapper h2 { font-size: 32px; font-weight: 700; }
+.editor-styles-wrapper h3 { font-size: 24px; font-weight: 600; }
+.editor-styles-wrapper h4 { font-size: 20px; font-weight: 600; }
+.editor-styles-wrapper h5 { font-size: 17px; font-weight: 600; }
+.editor-styles-wrapper h6 { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Links */
+.editor-styles-wrapper a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.editor-styles-wrapper a:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+/* Lists */
+.editor-styles-wrapper ul,
+.editor-styles-wrapper ol {
+    padding-left: 1.5em;
+}
+
+.editor-styles-wrapper li {
+    margin-bottom: 0.5em;
+}
+
+.editor-styles-wrapper li::marker {
+    color: var(--color-primary);
+}
+
+/* Blockquote */
+.editor-styles-wrapper blockquote,
+.editor-styles-wrapper .wp-block-quote {
+    padding: 24px 32px;
+    background: var(--color-bg-subtle);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--color-text);
+    margin: 2em 0;
+}
+
+.editor-styles-wrapper .wp-block-quote cite {
+    display: block;
+    margin-top: 12px;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+/* Pullquote */
+.editor-styles-wrapper .wp-block-pullquote {
+    padding: 32px;
+    border: none;
+    border-top: 3px solid var(--color-primary);
+    border-bottom: 3px solid var(--color-primary);
+    text-align: center;
+}
+
+.editor-styles-wrapper .wp-block-pullquote blockquote {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.editor-styles-wrapper .wp-block-pullquote p {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* Images */
+.editor-styles-wrapper img {
+    border-radius: var(--radius-lg);
+}
+
+.editor-styles-wrapper .wp-block-image figcaption {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    text-align: center;
+    margin-top: 12px;
+}
+
+/* Cover Block */
+.editor-styles-wrapper .wp-block-cover {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+/* Media & Text */
+.editor-styles-wrapper .wp-block-media-text {
+    background: var(--color-bg);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+}
+
+.editor-styles-wrapper .wp-block-media-text .wp-block-media-text__content {
+    padding: 32px;
+}
+
+/* Group Block */
+.editor-styles-wrapper .wp-block-group.has-background {
+    padding: 32px;
+    border-radius: var(--radius-xl);
+}
+
+/* Separator */
+.editor-styles-wrapper hr,
+.editor-styles-wrapper .wp-block-separator {
+    border: none;
+    height: 1px;
+    background: var(--color-border-light);
+}
+
+.editor-styles-wrapper .wp-block-separator.is-style-dots {
+    background: none;
+    text-align: center;
+    height: auto;
+}
+
+.editor-styles-wrapper .wp-block-separator.is-style-dots::before {
+    content: '···';
+    color: var(--color-text-muted);
+    font-size: 24px;
+    letter-spacing: 16px;
+}
+
+/* Code Block */
+.editor-styles-wrapper code {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+    font-size: 0.9em;
+    background: var(--color-bg-subtle);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--color-text);
+}
+
+.editor-styles-wrapper pre,
+.editor-styles-wrapper .wp-block-code {
+    padding: 24px;
+    background: #1e293b;
+    border-radius: var(--radius-lg);
+}
+
+.editor-styles-wrapper pre code,
+.editor-styles-wrapper .wp-block-code code {
+    background: transparent;
+    padding: 0;
+    color: #e2e8f0;
+    font-size: 14px;
+}
+
+/* Table */
+.editor-styles-wrapper table {
+    border-collapse: collapse;
+    font-size: 15px;
+}
+
+.editor-styles-wrapper th,
+.editor-styles-wrapper td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.editor-styles-wrapper th {
+    background: var(--color-bg-subtle);
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* Buttons */
+.editor-styles-wrapper .wp-block-button__link {
+    padding: 14px 28px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.editor-styles-wrapper .wp-block-button.is-style-outline .wp-block-button__link {
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* Details/Accordion */
+.editor-styles-wrapper details,
+.editor-styles-wrapper .wp-block-details {
+    padding: 20px 24px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+}
+
+.editor-styles-wrapper summary {
+    font-weight: 600;
+    color: var(--color-text);
+    cursor: pointer;
+}
+
+/* Custom colors */
+.editor-styles-wrapper .has-primary-color { color: var(--color-primary); }
+.editor-styles-wrapper .has-primary-hover-color { color: var(--color-primary-hover); }
+.editor-styles-wrapper .has-text-dark-color { color: var(--color-text); }
+.editor-styles-wrapper .has-text-secondary-color { color: var(--color-text-secondary); }
+.editor-styles-wrapper .has-text-muted-color { color: var(--color-text-muted); }
+
+.editor-styles-wrapper .has-primary-background-color { background-color: var(--color-primary); }
+.editor-styles-wrapper .has-background-background-color { background-color: var(--color-bg); }
+.editor-styles-wrapper .has-background-subtle-background-color { background-color: var(--color-bg-subtle); }
+.editor-styles-wrapper .has-border-background-color { background-color: var(--color-border); }
+

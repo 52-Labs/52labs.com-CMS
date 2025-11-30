@@ -3,6 +3,88 @@
 // Initialize Theme
 function headless_cms_setup() {
     add_theme_support('post-thumbnails');
+    
+    // Gutenberg support
+    add_theme_support('align-wide');
+    add_theme_support('responsive-embeds');
+    add_theme_support('editor-styles');
+    add_theme_support('wp-block-styles');
+    
+    // Custom color palette for Gutenberg
+    add_theme_support('editor-color-palette', [
+        [
+            'name'  => 'Primary Blue',
+            'slug'  => 'primary',
+            'color' => '#3B82F6',
+        ],
+        [
+            'name'  => 'Primary Hover',
+            'slug'  => 'primary-hover',
+            'color' => '#2563EB',
+        ],
+        [
+            'name'  => 'Text Dark',
+            'slug'  => 'text-dark',
+            'color' => '#1F2937',
+        ],
+        [
+            'name'  => 'Text Secondary',
+            'slug'  => 'text-secondary',
+            'color' => '#6B7280',
+        ],
+        [
+            'name'  => 'Text Muted',
+            'slug'  => 'text-muted',
+            'color' => '#9CA3AF',
+        ],
+        [
+            'name'  => 'Background',
+            'slug'  => 'background',
+            'color' => '#FFFFFF',
+        ],
+        [
+            'name'  => 'Background Subtle',
+            'slug'  => 'background-subtle',
+            'color' => '#F9FAFB',
+        ],
+        [
+            'name'  => 'Border',
+            'slug'  => 'border',
+            'color' => '#E5E7EB',
+        ],
+    ]);
+    
+    // Custom font sizes for Gutenberg
+    add_theme_support('editor-font-sizes', [
+        [
+            'name' => 'Small',
+            'slug' => 'small',
+            'size' => 13,
+        ],
+        [
+            'name' => 'Normal',
+            'slug' => 'normal',
+            'size' => 16,
+        ],
+        [
+            'name' => 'Medium',
+            'slug' => 'medium',
+            'size' => 18,
+        ],
+        [
+            'name' => 'Large',
+            'slug' => 'large',
+            'size' => 24,
+        ],
+        [
+            'name' => 'Extra Large',
+            'slug' => 'extra-large',
+            'size' => 32,
+        ],
+    ]);
+    
+    // Add editor stylesheet
+    add_editor_style('assets/css/editor-style.css');
 }
 add_action('after_setup_theme', 'headless_cms_setup');
 
@@ -41,15 +123,18 @@ add_action('admin_init', 'hide_content_editor_for_site_settings');
 // ========================================
 
 /**
- * Enqueue Library styles and scripts
+ * Enqueue Library and Blog styles and scripts
  */
 function headless_cms_library_assets() {
-    // Check if we're on a library page or single product
+    // Check if we're on a library page, single product, blog, archive, or regular page
     $is_library_page = is_page_template('template-library.php');
     $is_single_product = is_singular('product');
+    $is_single_post = is_singular('post');
+    $is_archive = is_archive() || is_home() || is_search();
+    $is_page = is_page();
     
-    if ($is_library_page || $is_single_product) {
-        // Enqueue library CSS
+    if ($is_library_page || $is_single_product || $is_single_post || $is_archive || $is_page) {
+        // Enqueue library CSS (contains both library and blog styles)
         wp_enqueue_style(
             'library-styles',
             get_template_directory_uri() . '/assets/css/library.css',
@@ -203,7 +288,7 @@ function hide_content_editor_for_library() {
 add_action('admin_init', 'hide_content_editor_for_library');
 
 /**
- * Add custom body classes for library pages
+ * Add custom body classes for library, blog, and page templates
  */
 function headless_cms_body_classes($classes) {
     if (is_page_template('template-library.php')) {
@@ -211,6 +296,15 @@ function headless_cms_body_classes($classes) {
     }
     if (is_singular('product')) {
         $classes[] = 'single-product-page';
+    }
+    if (is_singular('post')) {
+        $classes[] = 'single-post-page';
+    }
+    if (is_archive() || is_home() || is_search()) {
+        $classes[] = 'blog-archive-page';
+    }
+    if (is_page() && !is_page_template()) {
+        $classes[] = 'default-page';
     }
     return $classes;
 }
