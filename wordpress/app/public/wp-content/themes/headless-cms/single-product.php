@@ -86,7 +86,7 @@ $has_tabs = $tab_count > 1;
                             </div>
                             <?php if ($download_url) : ?>
                                 <a href="<?php echo esc_url($download_url); ?>" class="btn btn-primary btn-download" target="_blank" rel="noopener">
-                                    Get It
+                                    Get It »
                                 </a>
                             <?php endif; ?>
                         </div>
