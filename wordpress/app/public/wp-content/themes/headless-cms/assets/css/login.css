@@ -127,18 +127,23 @@ body.auth-page::before {
 .auth-logo-icon {
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, var(--auth-primary) 0%, var(--auth-accent) 100%);
     border-radius: var(--auth-radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Only show background when no image (text fallback) */
+.auth-logo-icon:has(span) {
+    background: linear-gradient(135deg, var(--auth-primary) 0%, var(--auth-accent) 100%);
     box-shadow: var(--auth-shadow-md);
 }
 
 .auth-logo-icon img {
-    width: 32px;
-    height: 32px;
+    width: 56px;
+    height: 56px;
     object-fit: contain;
+    border-radius: var(--auth-radius-md);
 }
 
 .auth-logo-icon svg {
@@ -667,11 +672,22 @@ body.auth-page::before {
 .auth-branding-logo {
     width: 24px;
     height: 24px;
-    background: rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Only show background when no image (text fallback) */
+.auth-branding-logo:has(span) {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.auth-branding-logo img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    border-radius: 6px;
 }
 
 .auth-branding-logo span {

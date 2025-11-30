@@ -16,20 +16,25 @@ if (is_user_logged_in()) {
 $site_name = get_bloginfo('name');
 $site_logo = '';
 
-// Try to get custom logo from Site Settings ACF options page
-if (function_exists('get_field')) {
+// Try WordPress Custom Logo first (set in Customizer > Site Identity)
+$custom_logo_id = get_theme_mod('custom_logo');
+if ($custom_logo_id) {
+    $site_logo = wp_get_attachment_image_url($custom_logo_id, 'full');
+}
+
+// Fallback to Site Icon if no custom logo
+if (empty($site_logo)) {
+    $site_logo = get_site_icon_url(512);
+}
+
+// Try ACF site_logo option as last resort
+if (empty($site_logo) && function_exists('get_field')) {
     $logo_field = get_field('site_logo', 'option');
     if ($logo_field && is_array($logo_field) && isset($logo_field['url'])) {
         $site_logo = $logo_field['url'];
     } elseif ($logo_field && is_string($logo_field)) {
         $site_logo = $logo_field;
     }
-}
-
-// Fallback to WordPress custom logo
-if (empty($site_logo) && has_custom_logo()) {
-    $custom_logo_id = get_theme_mod('custom_logo');
-    $site_logo = wp_get_attachment_image_url($custom_logo_id, 'medium');
 }
 
 // Determine current mode (login or register)
@@ -404,7 +409,11 @@ $redirect_to = isset($_GET['redirect_to']) ? esc_url($_GET['redirect_to']) : hom
         <div class="auth-branding">
             <p class="auth-branding-text">
                 <span class="auth-branding-logo">
-                    <span><?php echo esc_html(mb_substr($site_name, 0, 2)); ?></span>
+                    <?php if ($site_logo) : ?>
+                        <img src="<?php echo esc_url($site_logo); ?>" alt="<?php echo esc_attr($site_name); ?>">
+                    <?php else : ?>
+                        <span><?php echo esc_html(mb_substr($site_name, 0, 2)); ?></span>
+                    <?php endif; ?>
                 </span>
                 <?php echo esc_html($site_name); ?>
             </p>
