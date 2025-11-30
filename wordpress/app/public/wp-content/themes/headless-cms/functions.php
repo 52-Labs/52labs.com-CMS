@@ -99,6 +99,9 @@ require_once get_template_directory() . '/inc/post-types.php';
 // Register ACF Fields
 require_once get_template_directory() . '/inc/acf-fields.php';
 
+// Authentication & Content Gating
+require_once get_template_directory() . '/inc/authentication.php';
+
 // ========================================
 // Helper Functions
 // ========================================

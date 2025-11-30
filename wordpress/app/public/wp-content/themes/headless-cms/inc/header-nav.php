@@ -104,6 +104,71 @@ class Headless_Nav_Walker extends Walker_Nav_Menu {
             <input type="text" id="header-search-input" placeholder="Search" value="<?php echo esc_attr($search_value); ?>">
         </div>
         
+        <?php
+        // User Account Menu
+        $user_menu = function_exists('headless_cms_get_user_menu_data') ? headless_cms_get_user_menu_data() : null;
+        if ($user_menu) :
+        ?>
+        <div class="header-user-menu">
+            <?php if ($user_menu['logged_in']) : ?>
+                <div class="user-dropdown">
+                    <button class="user-dropdown-trigger" aria-expanded="false">
+                        <img src="<?php echo esc_url($user_menu['avatar_url']); ?>" alt="" class="user-avatar">
+                        <span class="user-name"><?php echo esc_html($user_menu['display_name']); ?></span>
+                        <svg class="dropdown-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown-menu">
+                        <div class="user-dropdown-header">
+                            <span class="user-dropdown-name"><?php echo esc_html($user_menu['display_name']); ?></span>
+                            <span class="user-dropdown-email"><?php echo esc_html($user_menu['email']); ?></span>
+                        </div>
+                        <div class="user-dropdown-items">
+                            <?php if (current_user_can('edit_posts')) : ?>
+                            <a href="<?php echo esc_url($user_menu['dashboard_url']); ?>" class="user-dropdown-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="7" height="9"/>
+                                    <rect x="14" y="3" width="7" height="5"/>
+                                    <rect x="14" y="12" width="7" height="9"/>
+                                    <rect x="3" y="16" width="7" height="5"/>
+                                </svg>
+                                Dashboard
+                            </a>
+                            <?php endif; ?>
+                            <a href="<?php echo esc_url($user_menu['profile_url']); ?>" class="user-dropdown-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="12" cy="7" r="4"/>
+                                </svg>
+                                Profile Settings
+                            </a>
+                        </div>
+                        <div class="user-dropdown-footer">
+                            <a href="<?php echo esc_url($user_menu['logout_url']); ?>" class="user-dropdown-item user-logout">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                                    <polyline points="16,17 21,12 16,7"/>
+                                    <line x1="21" y1="12" x2="9" y2="12"/>
+                                </svg>
+                                Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <?php else : ?>
+                <a href="<?php echo esc_url($user_menu['login_url']); ?>" class="header-login-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                        <polyline points="10,17 15,12 10,7"/>
+                        <line x1="15" y1="12" x2="3" y2="12"/>
+                    </svg>
+                    <span>Sign In</span>
+                </a>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+        
         <!-- Mobile Menu Toggle -->
         <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
             <span class="hamburger-line"></span>
@@ -225,6 +290,35 @@ class Headless_Nav_Walker extends Walker_Nav_Menu {
         mobileSearchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 headerSearchInput.dispatchEvent(new KeyboardEvent('keypress', { key: 'Enter', bubbles: true }));
+            }
+        });
+    }
+    
+    // User Dropdown Menu
+    const userDropdown = document.querySelector('.user-dropdown');
+    const dropdownTrigger = document.querySelector('.user-dropdown-trigger');
+    
+    if (userDropdown && dropdownTrigger) {
+        dropdownTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            this.setAttribute('aria-expanded', !isExpanded);
+            userDropdown.classList.toggle('active');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userDropdown.contains(e.target)) {
+                dropdownTrigger.setAttribute('aria-expanded', 'false');
+                userDropdown.classList.remove('active');
+            }
+        });
+        
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && userDropdown.classList.contains('active')) {
+                dropdownTrigger.setAttribute('aria-expanded', 'false');
+                userDropdown.classList.remove('active');
             }
         });
     }
