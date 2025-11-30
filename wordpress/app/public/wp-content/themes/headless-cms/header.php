@@ -1,10 +1,8 @@
-<?php
-/**
- * Minimal header template
- * 
- * This provides a minimal header for templates that call get_header()
- * Most of the header markup is included directly in page templates for full control
- */
-
-// Intentionally minimal - templates handle their own header markup
-
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php wp_head(); ?>
+</head>
+<body <?php body_class(); ?>>

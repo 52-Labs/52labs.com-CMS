@@ -45,11 +45,12 @@ if (is_category()) {
     $search_query = get_search_query();
 }
 
-// Build posts query
-$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+// Build posts query with pagination
+$paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
+$posts_per_page = apply_filters('headless_cms_archive_posts_per_page', 12);
 $posts_args = [
     'post_type' => 'post',
-    'posts_per_page' => 12,
+    'posts_per_page' => $posts_per_page,
     'paged' => $paged,
     'orderby' => 'date',
     'order' => 'DESC',
@@ -70,16 +71,6 @@ $posts_query = new WP_Query($posts_args);
 $total_posts = $posts_query->found_posts;
 $total_pages = $posts_query->max_num_pages;
 ?>
-
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo esc_html($archive_title); ?> - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('archive-page blog-archive-page'); ?>>
 
 <div class="library-wrapper">
     <!-- Header -->
@@ -270,8 +261,6 @@ $total_pages = $posts_query->max_num_pages;
     </main>
 </div>
 
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
 
 

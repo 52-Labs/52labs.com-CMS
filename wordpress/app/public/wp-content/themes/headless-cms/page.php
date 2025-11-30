@@ -26,16 +26,6 @@ if ($layout_width === 'wide') {
 }
 ?>
 
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php the_title(); ?> - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('default-page'); ?>>
-
 <div class="library-wrapper">
     <!-- Header -->
     <?php include(get_template_directory() . '/inc/header-nav.php'); ?>
@@ -74,8 +64,6 @@ if ($layout_width === 'wide') {
     </main>
 </div>
 
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
 
 

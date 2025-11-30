@@ -28,13 +28,13 @@ $selected_categories = isset($_GET['categories']) ? array_map('sanitize_text_fie
 $selected_tags = isset($_GET['tags']) ? array_map('sanitize_text_field', (array)$_GET['tags']) : [];
 $search_query = isset($_GET['search']) ? sanitize_text_field($_GET['search']) : '';
 
-// Build product query
+// Build product query with pagination
 $product_args = [
     'post_type' => 'product',
-    'posts_per_page' => -1,
     'orderby' => 'title',
     'order' => 'ASC',
     'post_status' => 'publish',
+    'no_found_rows' => false, // Enable pagination info
 ];
 
 // Add category and tag filters
@@ -66,19 +66,13 @@ if (!empty($search_query)) {
     $product_args['s'] = $search_query;
 }
 
+// Use pagination for better performance
+$paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
+$product_args['paged'] = $paged;
+$product_args['posts_per_page'] = apply_filters('headless_cms_library_products_per_page', 24);
+
 $products = new WP_Query($product_args);
-
 ?>
-
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('library-page'); ?>>
 
 <div class="library-wrapper">
     <!-- Header -->
@@ -172,7 +166,7 @@ $products = new WP_Query($product_args);
                                             <?php if ($logo) : ?>
                                                 <img src="<?php echo esc_url($logo['url']); ?>" alt="<?php echo esc_attr(get_the_title()); ?> icon">
                                             <?php else : ?>
-                                                <span class="icon-placeholder"><?php echo esc_html(substr(get_the_title(), 0, 1)); ?></span>
+                                                <span class="icon-placeholder"><?php echo esc_html(mb_substr(get_the_title(), 0, 1)); ?></span>
                                             <?php endif; ?>
                                         </div>
                                         <div class="product-info">
@@ -191,13 +185,27 @@ $products = new WP_Query($product_args);
                         <?php endif; ?>
                         <?php wp_reset_postdata(); ?>
                     </div>
+                    
+                    <!-- Pagination -->
+                    <?php if ($products->max_num_pages > 1) : ?>
+                    <nav class="library-pagination" aria-label="Product pagination">
+                        <?php
+                        echo paginate_links([
+                            'total' => $products->max_num_pages,
+                            'current' => $paged,
+                            'prev_text' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg> Previous',
+                            'next_text' => 'Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>',
+                            'mid_size' => 2,
+                            'end_size' => 1,
+                        ]);
+                        ?>
+                    </nav>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </main>
 </div>
 
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
 

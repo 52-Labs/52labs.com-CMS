@@ -51,16 +51,6 @@ $tab_count = ($has_features ? 1 : 0) + ($has_how_to_use ? 1 : 0) + ($has_downloa
 $has_tabs = $tab_count > 1;
 ?>
 
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php the_title(); ?> - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('single-product-page'); ?>>
-
 <div class="library-wrapper">
     <!-- Header -->
     <?php include(get_template_directory() . '/inc/header-nav.php'); ?>
@@ -75,7 +65,7 @@ $has_tabs = $tab_count > 1;
                         <?php if ($logo) : ?>
                             <img src="<?php echo esc_url($logo['url']); ?>" alt="<?php echo esc_attr(get_the_title()); ?> icon">
                         <?php else : ?>
-                            <span class="icon-placeholder"><?php echo esc_html(substr(get_the_title(), 0, 1)); ?></span>
+                            <span class="icon-placeholder"><?php echo esc_html(mb_substr(get_the_title(), 0, 1)); ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="product-hero-info">
@@ -314,6 +304,4 @@ $has_tabs = $tab_count > 1;
     </main>
 </div>
 
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
