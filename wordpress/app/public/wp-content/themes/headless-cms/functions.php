@@ -2,6 +2,7 @@
 
 // Initialize Theme
 function headless_cms_setup() {
+    add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
     
     // Gutenberg support
@@ -98,6 +99,50 @@ require_once get_template_directory() . '/inc/post-types.php';
 // Register ACF Fields
 require_once get_template_directory() . '/inc/acf-fields.php';
 
+// ========================================
+// Helper Functions
+// ========================================
+
+/**
+ * Helper function to safely get post ID from various sources
+ * Used in admin contexts where global $post may not be set
+ * 
+ * @return int Post ID or 0 if not found
+ */
+function headless_cms_get_post_id() {
+    global $post;
+    
+    $post_id = 0;
+    if (isset($_GET['post'])) {
+        $post_id = absint($_GET['post']);
+    } elseif (isset($_POST['post_ID'])) {
+        $post_id = absint($_POST['post_ID']);
+    } elseif (isset($post->ID)) {
+        $post_id = $post->ID;
+    }
+    
+    return $post_id;
+}
+
+/**
+ * Add error logging helper (for development)
+ * 
+ * @param string $message Error message
+ * @param mixed  $data    Additional data to log
+ * @return void
+ */
+function headless_cms_log_error($message, $data = null) {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Headless CMS: ' . $message);
+        if ($data !== null) {
+            error_log('Headless CMS Data: ' . print_r($data, true));
+        }
+    }
+}
+
+// ========================================
+// CORS & API Support
+// ========================================
 
 /**
  * CORS Support for REST API and GraphQL
@@ -135,7 +180,8 @@ function headless_cms_handle_cors() {
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 }
 add_action('rest_api_init', 'headless_cms_handle_cors', 1);
-add_action('init', 'headless_cms_handle_cors', 1);
+// Hook for WPGraphQL - runs before GraphQL processes the request
+add_action('graphql_init', 'headless_cms_handle_cors', 1);
 
 /**
  * Hide content editor for Site Settings template
@@ -143,17 +189,7 @@ add_action('init', 'headless_cms_handle_cors', 1);
  * @return void
  */
 function hide_content_editor_for_site_settings() {
-    global $post;
-    
-    // Get post ID from various sources
-    $post_id = 0;
-    if (isset($_GET['post'])) {
-        $post_id = absint($_GET['post']);
-    } elseif (isset($_POST['post_ID'])) {
-        $post_id = absint($_POST['post_ID']);
-    } elseif (isset($post->ID)) {
-        $post_id = $post->ID;
-    }
+    $post_id = headless_cms_get_post_id();
     
     if (!$post_id) {
         return;
@@ -211,15 +247,12 @@ add_action('wp_enqueue_scripts', 'headless_cms_library_assets');
 
 /**
  * AJAX handler for product filtering
+ * 
+ * Note: No capability check since this displays public product data.
+ * Nonce verification ensures the request came from our site.
  */
 function headless_cms_filter_products() {
-    // Check user capability
-    if (!current_user_can('read')) {
-        wp_send_json_error(['message' => 'Insufficient permissions'], 403);
-        return;
-    }
-    
-    // Verify nonce
+    // Verify nonce - ensures request originated from our site
     $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
     if (!wp_verify_nonce($nonce, 'library_filter_nonce')) {
         wp_send_json_error(['message' => 'Invalid security token'], 403);
@@ -276,14 +309,8 @@ function headless_cms_filter_products() {
         $args['s'] = $search;
     }
     
-    // Execute query with error handling
+    // Execute query
     $products = new WP_Query($args);
-    
-    // Check for query errors
-    if (is_wp_error($products)) {
-        wp_send_json_error(['message' => 'Query failed: ' . $products->get_error_message()], 500);
-        return;
-    }
     
     // Build HTML output
     ob_start();
@@ -375,17 +402,7 @@ add_action('wp_ajax_nopriv_filter_products', 'headless_cms_filter_products');
  * @return void
  */
 function hide_content_editor_for_library() {
-    global $post;
-    
-    // Get post ID from various sources
-    $post_id = 0;
-    if (isset($_GET['post'])) {
-        $post_id = absint($_GET['post']);
-    } elseif (isset($_POST['post_ID'])) {
-        $post_id = absint($_POST['post_ID']);
-    } elseif (isset($post->ID)) {
-        $post_id = $post->ID;
-    }
+    $post_id = headless_cms_get_post_id();
     
     if (!$post_id) {
         return;
@@ -445,40 +462,3 @@ function headless_cms_flush_rewrite_rules() {
     flush_rewrite_rules();
 }
 add_action('after_switch_theme', 'headless_cms_flush_rewrite_rules');
-
-/**
- * Helper function to safely get post ID from various sources
- * 
- * @return int Post ID or 0 if not found
- */
-function headless_cms_get_post_id() {
-    global $post;
-    
-    $post_id = 0;
-    if (isset($_GET['post'])) {
-        $post_id = absint($_GET['post']);
-    } elseif (isset($_POST['post_ID'])) {
-        $post_id = absint($_POST['post_ID']);
-    } elseif (isset($post->ID)) {
-        $post_id = $post->ID;
-    }
-    
-    return $post_id;
-}
-
-/**
- * Add error logging helper (for development)
- * 
- * @param string $message Error message
- * @param mixed  $data    Additional data to log
- * @return void
- */
-function headless_cms_log_error($message, $data = null) {
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Headless CMS: ' . $message);
-        if ($data !== null) {
-            error_log('Headless CMS Data: ' . print_r($data, true));
-        }
-    }
-}
-

@@ -72,6 +72,7 @@ $product_args['paged'] = $paged;
 $product_args['posts_per_page'] = apply_filters('headless_cms_library_products_per_page', 24);
 
 $products = new WP_Query($product_args);
+?>
 
 <div class="library-wrapper">
     <!-- Header -->
@@ -165,7 +166,7 @@ $products = new WP_Query($product_args);
                                             <?php if ($logo) : ?>
                                                 <img src="<?php echo esc_url($logo['url']); ?>" alt="<?php echo esc_attr(get_the_title()); ?> icon">
                                             <?php else : ?>
-                                                <span class="icon-placeholder"><?php echo esc_html(substr(get_the_title(), 0, 1)); ?></span>
+                                                <span class="icon-placeholder"><?php echo esc_html(mb_substr(get_the_title(), 0, 1)); ?></span>
                                             <?php endif; ?>
                                         </div>
                                         <div class="product-info">

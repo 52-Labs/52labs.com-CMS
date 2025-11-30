@@ -49,6 +49,7 @@ $has_download_instructions = !empty($installation_instructions);
 $has_faqs = !empty($faqs);
 $tab_count = ($has_features ? 1 : 0) + ($has_how_to_use ? 1 : 0) + ($has_download_instructions ? 1 : 0) + ($has_faqs ? 1 : 0);
 $has_tabs = $tab_count > 1;
+?>
 
 <div class="library-wrapper">
     <!-- Header -->
@@ -64,7 +65,7 @@ $has_tabs = $tab_count > 1;
                         <?php if ($logo) : ?>
                             <img src="<?php echo esc_url($logo['url']); ?>" alt="<?php echo esc_attr(get_the_title()); ?> icon">
                         <?php else : ?>
-                            <span class="icon-placeholder"><?php echo esc_html(substr(get_the_title(), 0, 1)); ?></span>
+                            <span class="icon-placeholder"><?php echo esc_html(mb_substr(get_the_title(), 0, 1)); ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="product-hero-info">

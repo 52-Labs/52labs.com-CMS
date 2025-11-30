@@ -42,6 +42,7 @@ $related_posts = new WP_Query([
     'orderby' => 'date',
     'order' => 'DESC',
 ]);
+?>
 
 <div class="library-wrapper">
     <!-- Header -->

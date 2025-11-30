@@ -45,11 +45,12 @@ if (is_category()) {
     $search_query = get_search_query();
 }
 
-// Build posts query
-$paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
+// Build posts query with pagination
+$paged = (get_query_var('paged')) ? absint(get_query_var('paged')) : 1;
+$posts_per_page = apply_filters('headless_cms_archive_posts_per_page', 12);
 $posts_args = [
     'post_type' => 'post',
-    'posts_per_page' => 12,
+    'posts_per_page' => $posts_per_page,
     'paged' => $paged,
     'orderby' => 'date',
     'order' => 'DESC',
@@ -69,6 +70,7 @@ if (!empty($search_query)) {
 $posts_query = new WP_Query($posts_args);
 $total_posts = $posts_query->found_posts;
 $total_pages = $posts_query->max_num_pages;
+?>
 
 <div class="library-wrapper">
     <!-- Header -->

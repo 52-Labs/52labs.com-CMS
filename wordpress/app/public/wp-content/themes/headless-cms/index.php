@@ -26,6 +26,7 @@ if (is_singular('product')) {
 
 // Default fallback - basic page structure
 get_header();
+?>
 
 <div class="library-wrapper">
     <?php include(get_template_directory() . '/inc/header-nav.php'); ?>

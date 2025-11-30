@@ -24,6 +24,7 @@ if ($layout_width === 'wide') {
 } elseif ($layout_width === 'full') {
     $width_class = 'page-width-full';
 }
+?>
 
 <div class="library-wrapper">
     <!-- Header -->
