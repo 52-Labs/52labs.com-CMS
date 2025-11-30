@@ -49,17 +49,6 @@ $has_download_instructions = !empty($installation_instructions);
 $has_faqs = !empty($faqs);
 $tab_count = ($has_features ? 1 : 0) + ($has_how_to_use ? 1 : 0) + ($has_download_instructions ? 1 : 0) + ($has_faqs ? 1 : 0);
 $has_tabs = $tab_count > 1;
-?>
-
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php the_title(); ?> - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('single-product-page'); ?>>
 
 <div class="library-wrapper">
     <!-- Header -->
@@ -314,6 +303,4 @@ $has_tabs = $tab_count > 1;
     </main>
 </div>
 
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>

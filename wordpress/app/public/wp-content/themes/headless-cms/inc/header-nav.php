@@ -16,7 +16,6 @@ $library_page = get_pages([
 $library_url = !empty($library_page) ? get_permalink($library_page[0]->ID) : home_url('/library/');
 
 // Determine current page for active states
-$current_url = home_url(add_query_arg([], $GLOBALS['wp']->request));
 $is_library = is_page_template('template-library.php') || is_singular('product');
 $is_blog = is_singular('post') || is_archive() || is_home() || is_search();
 ?>
@@ -90,7 +89,13 @@ $is_blog = is_singular('post') || is_archive() || is_home() || is_search();
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
             </svg>
-            <input type="text" id="header-search-input" placeholder="Search" value="<?php echo isset($_GET['search']) ? esc_attr(sanitize_text_field($_GET['search'])) : ''; ?>">
+            <?php
+            $search_value = '';
+            if (isset($_GET['search'])) {
+                $search_value = sanitize_text_field(wp_unslash($_GET['search']));
+            }
+            ?>
+            <input type="text" id="header-search-input" placeholder="Search" value="<?php echo esc_attr($search_value); ?>">
         </div>
     </div>
 </header>

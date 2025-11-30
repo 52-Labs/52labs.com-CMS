@@ -42,17 +42,6 @@ $related_posts = new WP_Query([
     'orderby' => 'date',
     'order' => 'DESC',
 ]);
-?>
-
-<!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo('charset'); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php the_title(); ?> - <?php bloginfo('name'); ?></title>
-    <?php wp_head(); ?>
-</head>
-<body <?php body_class('single-post-page'); ?>>
 
 <div class="library-wrapper">
     <!-- Header -->
@@ -218,7 +207,5 @@ $related_posts = new WP_Query([
     </main>
 </div>
 
-<?php wp_footer(); ?>
-</body>
-</html>
+<?php get_footer(); ?>
 

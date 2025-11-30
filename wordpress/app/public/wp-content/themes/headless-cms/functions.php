@@ -99,21 +99,69 @@ require_once get_template_directory() . '/inc/post-types.php';
 require_once get_template_directory() . '/inc/acf-fields.php';
 
 
-// CORS Support (Basic)
-add_action('init', function() {
-    header("Access-Control-Allow-Origin: *");
+/**
+ * CORS Support for REST API and GraphQL
+ * Only applies to API requests, not regular page loads
+ * 
+ * @param string $origin Allowed origin (can be configured via filter)
+ */
+function headless_cms_handle_cors() {
+    // Only apply to REST API and GraphQL endpoints
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? esc_url_raw(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+    
+    // Check if this is an API request
+    $is_rest_api = (false !== strpos($request_uri, '/wp-json/'));
+    $is_graphql = (false !== strpos($request_uri, '/graphql'));
+    
+    if (!$is_rest_api && !$is_graphql) {
+        return;
+    }
+    
+    // Allow configuration via filter (default: current origin or wildcard for development)
+    $allowed_origin = apply_filters('headless_cms_cors_origin', '*');
+    
+    // Handle preflight OPTIONS request
+    if ('OPTIONS' === $_SERVER['REQUEST_METHOD']) {
+        header("Access-Control-Allow-Origin: {$allowed_origin}");
+        header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+        header("Access-Control-Max-Age: 86400");
+        exit;
+    }
+    
+    // Set CORS headers for actual requests
+    header("Access-Control-Allow-Origin: {$allowed_origin}");
     header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
     header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-});
+}
+add_action('rest_api_init', 'headless_cms_handle_cors', 1);
+add_action('init', 'headless_cms_handle_cors', 1);
 
-// Hide content editor for Site Settings template
+/**
+ * Hide content editor for Site Settings template
+ * 
+ * @return void
+ */
 function hide_content_editor_for_site_settings() {
-    $post_id = isset($_GET['post']) ? intval($_GET['post']) : (isset($_POST['post_ID']) ? intval($_POST['post_ID']) : 0);
-    if ($post_id) {
-        $template = get_page_template_slug($post_id);
-        if ($template === 'template-site-settings.php') {
-            remove_post_type_support('page', 'editor');
-        }
+    global $post;
+    
+    // Get post ID from various sources
+    $post_id = 0;
+    if (isset($_GET['post'])) {
+        $post_id = absint($_GET['post']);
+    } elseif (isset($_POST['post_ID'])) {
+        $post_id = absint($_POST['post_ID']);
+    } elseif (isset($post->ID)) {
+        $post_id = $post->ID;
+    }
+    
+    if (!$post_id) {
+        return;
+    }
+    
+    $template = get_page_template_slug($post_id);
+    if ($template === 'template-site-settings.php') {
+        remove_post_type_support('page', 'editor');
     }
 }
 add_action('admin_init', 'hide_content_editor_for_site_settings');
@@ -165,24 +213,39 @@ add_action('wp_enqueue_scripts', 'headless_cms_library_assets');
  * AJAX handler for product filtering
  */
 function headless_cms_filter_products() {
-    // Verify nonce
-    if (!wp_verify_nonce($_POST['nonce'] ?? '', 'library_filter_nonce')) {
-        wp_send_json_error(['message' => 'Invalid nonce']);
+    // Check user capability
+    if (!current_user_can('read')) {
+        wp_send_json_error(['message' => 'Insufficient permissions'], 403);
         return;
     }
     
-    // Get filter parameters
-    $categories = isset($_POST['categories']) ? array_map('sanitize_text_field', $_POST['categories']) : [];
-    $tags = isset($_POST['tags']) ? array_map('sanitize_text_field', $_POST['tags']) : [];
-    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    // Verify nonce
+    $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+    if (!wp_verify_nonce($nonce, 'library_filter_nonce')) {
+        wp_send_json_error(['message' => 'Invalid security token'], 403);
+        return;
+    }
     
-    // Build query
+    // Get filter parameters with proper sanitization
+    $categories = isset($_POST['categories']) && is_array($_POST['categories']) 
+        ? array_map('sanitize_text_field', wp_unslash($_POST['categories'])) 
+        : [];
+    $tags = isset($_POST['tags']) && is_array($_POST['tags']) 
+        ? array_map('sanitize_text_field', wp_unslash($_POST['tags'])) 
+        : [];
+    $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
+    
+    // Build query with pagination support
+    // Use a reasonable limit to prevent performance issues
+    $posts_per_page = apply_filters('headless_cms_filter_products_per_page', 100);
+    
     $args = [
         'post_type' => 'product',
-        'posts_per_page' => -1,
+        'posts_per_page' => $posts_per_page,
         'orderby' => 'title',
         'order' => 'ASC',
         'post_status' => 'publish',
+        'no_found_rows' => false, // Enable pagination info
     ];
     
     // Add category and tag filters
@@ -213,7 +276,14 @@ function headless_cms_filter_products() {
         $args['s'] = $search;
     }
     
+    // Execute query with error handling
     $products = new WP_Query($args);
+    
+    // Check for query errors
+    if (is_wp_error($products)) {
+        wp_send_json_error(['message' => 'Query failed: ' . $products->get_error_message()], 500);
+        return;
+    }
     
     // Build HTML output
     ob_start();
@@ -223,32 +293,51 @@ function headless_cms_filter_products() {
             $products->the_post();
             $product_id = get_the_ID();
             
-            // Get categories
+            // Get categories with error handling
             $cats = get_the_terms($product_id, 'product_cat');
-            $category_name = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->name : '';
-            $category_slug = (!empty($cats) && !is_wp_error($cats)) ? $cats[0]->slug : '';
+            $category_name = '';
+            $category_slug = '';
+            if (!empty($cats) && !is_wp_error($cats)) {
+                $category_name = esc_html($cats[0]->name);
+                $category_slug = esc_attr($cats[0]->slug);
+            }
             
-            // Get tags
+            // Get tags with error handling
             $product_tags = get_the_terms($product_id, 'product_tag');
-            $tag_slugs = (!empty($product_tags) && !is_wp_error($product_tags)) ? array_map(function($tag) { return $tag->slug; }, $product_tags) : [];
+            $tag_slugs = [];
+            if (!empty($product_tags) && !is_wp_error($product_tags)) {
+                $tag_slugs = array_map(function($tag) { 
+                    return esc_attr($tag->slug); 
+                }, $product_tags);
+            }
             
-            // Get ACF fields (top-level fields on product)
+            // Get ACF fields with fallbacks
             $logo = get_field('logo', $product_id);
-            $description = get_field('description', $product_id) ?: get_the_excerpt();
-            $background_color = get_field('backgroundColor', $product_id) ?: '#3B82F6';
+            $description = get_field('description', $product_id);
+            if (empty($description)) {
+                $description = get_the_excerpt();
+            }
+            $background_color = get_field('backgroundColor', $product_id);
+            if (empty($background_color)) {
+                $background_color = '#3B82F6';
+            }
+            
+            // Output product card
             ?>
             <article class="product-card" data-category="<?php echo esc_attr($category_slug); ?>" data-tags="<?php echo esc_attr(implode(' ', $tag_slugs)); ?>">
                 <div class="product-card-inner">
                     <div class="product-icon" style="background-color: <?php echo esc_attr($background_color); ?>">
-                        <?php if ($logo) : ?>
+                        <?php if (!empty($logo) && is_array($logo) && isset($logo['url'])) : ?>
                             <img src="<?php echo esc_url($logo['url']); ?>" alt="<?php echo esc_attr(get_the_title()); ?> icon">
                         <?php else : ?>
-                            <span class="icon-placeholder"><?php echo esc_html(substr(get_the_title(), 0, 1)); ?></span>
+                            <span class="icon-placeholder"><?php echo esc_html(mb_substr(get_the_title(), 0, 1)); ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="product-info">
                         <h3 class="product-name"><?php the_title(); ?></h3>
-                        <span class="product-category"><?php echo esc_html($category_name); ?></span>
+                        <?php if ($category_name) : ?>
+                            <span class="product-category"><?php echo esc_html($category_name); ?></span>
+                        <?php endif; ?>
                         <p class="product-description"><?php echo esc_html(wp_trim_words($description, 15, '...')); ?></p>
                     </div>
                     <a href="<?php the_permalink(); ?>" class="product-link">Learn More</a>
@@ -268,21 +357,43 @@ function headless_cms_filter_products() {
     
     $html = ob_get_clean();
     
-    wp_send_json_success(['html' => $html]);
+    // Include pagination info if needed
+    $response = [
+        'html' => $html,
+        'found_posts' => $products->found_posts,
+        'max_pages' => $products->max_num_pages,
+    ];
+    
+    wp_send_json_success($response);
 }
 add_action('wp_ajax_filter_products', 'headless_cms_filter_products');
 add_action('wp_ajax_nopriv_filter_products', 'headless_cms_filter_products');
 
 /**
  * Hide content editor for Library template
+ * 
+ * @return void
  */
 function hide_content_editor_for_library() {
-    $post_id = isset($_GET['post']) ? intval($_GET['post']) : (isset($_POST['post_ID']) ? intval($_POST['post_ID']) : 0);
-    if ($post_id) {
-        $template = get_page_template_slug($post_id);
-        if ($template === 'template-library.php') {
-            remove_post_type_support('page', 'editor');
-        }
+    global $post;
+    
+    // Get post ID from various sources
+    $post_id = 0;
+    if (isset($_GET['post'])) {
+        $post_id = absint($_GET['post']);
+    } elseif (isset($_POST['post_ID'])) {
+        $post_id = absint($_POST['post_ID']);
+    } elseif (isset($post->ID)) {
+        $post_id = $post->ID;
+    }
+    
+    if (!$post_id) {
+        return;
+    }
+    
+    $template = get_page_template_slug($post_id);
+    if ($template === 'template-library.php') {
+        remove_post_type_support('page', 'editor');
     }
 }
 add_action('admin_init', 'hide_content_editor_for_library');
@@ -312,6 +423,8 @@ add_filter('body_class', 'headless_cms_body_classes');
 
 /**
  * Custom rewrite rules for products
+ * 
+ * @return void
  */
 function headless_cms_rewrite_rules() {
     add_rewrite_rule(
@@ -321,4 +434,51 @@ function headless_cms_rewrite_rules() {
     );
 }
 add_action('init', 'headless_cms_rewrite_rules');
+
+/**
+ * Flush rewrite rules on theme activation
+ * 
+ * @return void
+ */
+function headless_cms_flush_rewrite_rules() {
+    headless_cms_rewrite_rules();
+    flush_rewrite_rules();
+}
+add_action('after_switch_theme', 'headless_cms_flush_rewrite_rules');
+
+/**
+ * Helper function to safely get post ID from various sources
+ * 
+ * @return int Post ID or 0 if not found
+ */
+function headless_cms_get_post_id() {
+    global $post;
+    
+    $post_id = 0;
+    if (isset($_GET['post'])) {
+        $post_id = absint($_GET['post']);
+    } elseif (isset($_POST['post_ID'])) {
+        $post_id = absint($_POST['post_ID']);
+    } elseif (isset($post->ID)) {
+        $post_id = $post->ID;
+    }
+    
+    return $post_id;
+}
+
+/**
+ * Add error logging helper (for development)
+ * 
+ * @param string $message Error message
+ * @param mixed  $data    Additional data to log
+ * @return void
+ */
+function headless_cms_log_error($message, $data = null) {
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Headless CMS: ' . $message);
+        if ($data !== null) {
+            error_log('Headless CMS Data: ' . print_r($data, true));
+        }
+    }
+}
 
