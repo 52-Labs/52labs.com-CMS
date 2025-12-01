@@ -1,0 +1,401 @@
+/* CSS Variables */
+:root {
+  /* Primary Colors */
+  --primary-blue: #4F7DF3;
+  --primary-blue-light: #6B93F5;
+  --primary-blue-dark: #3A62D4;
+  
+  /* Accent Colors */
+  --accent-coral: #FF6B6B;
+  --accent-teal: #4ECDC4;
+  --accent-purple: #A855F7;
+  --accent-amber: #F59E0B;
+  
+  /* Category Colors */
+  --cat-ticketing: #4F7DF3;
+  --cat-marketing: #FF6B6B;
+  --cat-analytics: #4ECDC4;
+  --cat-booking: #A855F7;
+  --cat-admin: #F59E0B;
+  --cat-websites: #10B981;
+  
+  /* Neutral Colors */
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F1F5F9;
+  --bg-pattern: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%);
+  
+  --text-primary: #1E293B;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-inverse: #FFFFFF;
+  
+  --border-light: #E2E8F0;
+  --border-medium: #CBD5E1;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06), 0 0 1px rgba(0, 0, 0, 0.1);
+  --shadow-card-hover: 0 8px 24px rgba(79, 125, 243, 0.15), 0 4px 8px rgba(0, 0, 0, 0.08);
+  
+  /* Typography */
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  
+  /* Spacing */
+  --header-height: 72px;
+  --sidebar-width: 260px;
+  
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background Pattern */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(79, 125, 243, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(78, 205, 196, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(168, 85, 247, 0.02) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* App Layout */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: var(--header-height);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+h1 { font-size: 2.5rem; font-weight: 700; }
+h2 { font-size: 2rem; font-weight: 600; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-blue-dark);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: var(--text-inverse);
+  box-shadow: 0 2px 8px rgba(79, 125, 243, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--primary-blue-dark);
+  box-shadow: 0 4px 12px rgba(79, 125, 243, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-medium);
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  background: rgba(79, 125, 243, 0.04);
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: rgba(79, 125, 243, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Tags */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
+}
+
+.tag-ticketing {
+  background: rgba(79, 125, 243, 0.1);
+  color: var(--cat-ticketing);
+}
+
+.tag-marketing {
+  background: rgba(255, 107, 107, 0.1);
+  color: var(--cat-marketing);
+}
+
+.tag-analytics {
+  background: rgba(78, 205, 196, 0.1);
+  color: #0D9488;
+}
+
+.tag-booking {
+  background: rgba(168, 85, 247, 0.1);
+  color: var(--cat-booking);
+}
+
+.tag-admin {
+  background: rgba(245, 158, 11, 0.1);
+  color: #D97706;
+}
+
+.tag-websites {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--cat-websites);
+}
+
+/* Platform Icons */
+.platform-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.platform-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text-tertiary);
+  transition: color var(--transition-fast);
+}
+
+.platform-icon.active {
+  color: var(--text-secondary);
+}
+
+/* Form Elements */
+input, select {
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+}
+
+/* Checkbox Custom */
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-medium);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.checkbox-wrapper:hover .checkbox-custom {
+  border-color: var(--primary-blue);
+}
+
+.checkbox-wrapper input:checked + .checkbox-custom {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.checkbox-custom svg {
+  width: 12px;
+  height: 12px;
+  color: white;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.checkbox-wrapper input:checked + .checkbox-custom svg {
+  opacity: 1;
+}
+
+.checkbox-label {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.checkbox-wrapper:hover .checkbox-label {
+  color: var(--text-primary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility Classes */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  :root {
+    --header-height: 64px;
+    --sidebar-width: 100%;
+  }
+  
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  
+  .container {
+    padding: 0 16px;
+  }
+}
